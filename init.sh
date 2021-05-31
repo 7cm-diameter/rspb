@@ -1,5 +1,6 @@
 sudo pacman -Syyu --noconfirm
-sudo pacman -S yay arduino arduino-avr-core cheese barrier --noconfirm
+sudo pacman -S yay arduino arduino-avr-core cheese barrier xdg-user-dirs-gtk --noconfirm
+LC_ALL=C xdg-user-dirs-gtk-update
 sudo pacman -S --needed base-devel openssl zlib xz --noconfirm
 yay -S fd ripgrep starship exa fzf fish neovim pyenv poetry nodejs npm --noconfirm
 sudo npm install n -g
