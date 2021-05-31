@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =3
+let g:netrw_dirhist_3='/home/duck/Github/7cm-diameter/toys/toys'
+let g:netrw_dirhist_2='/home/duck/Github/7cm-diameter/experiments/.git'
+let g:netrw_dirhist_1='/home/duck/Github/7cm-diameter/hbtnet/.git'
+let g:netrw_dirhist_0='/home/duck/Github/7cm-diameter/habit-network/.vim'
+let g:netrw_dirhist_9='/home/duck/.dotfiles/.git'
+let g:netrw_dirhist_8='/home/grudgeduck/Github/7cm-diameter/experiments/.git'
+let g:netrw_dirhist_7='/home/grudgeduck/Github/7cm-diameter'
+let g:netrw_dirhist_6='/home/grudgeduck/Github'
+let g:netrw_dirhist_5='/home/grudgeduck/.config/Code - OSS/CachedData/58bb7b2331731bf72587010e943852e13e6fd3cf'
+let g:netrw_dirhist_4='/home/grudgeduck/.config/Code - OSS/CachedData'

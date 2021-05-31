@@ -1,0 +1,490 @@
+[[plugins]]
+repo = "jiangmiao/auto-pairs"
+on_i = 1
+hook_add = '''
+let g:AutoPairsMapCh = 0
+'''
+
+[[plugins]]
+repo = "luochen1990/rainbow"
+hook_add = '''
+let g:rainbow_active = 1
+
+let g:rainbow_conf = {
+\ 'guifgs': ['#84a0c6', '#a093c7'],
+\ 'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
+\ 'operators': '_,_',
+\ 'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+\}
+'''
+
+[[plugins]]
+repo = 'itchyny/lightline.vim'
+hook_add = '''
+set noshowmode
+set laststatus=2
+let g:lightline = {}
+let g:lightline.enable = {
+  \  'statusline': 0
+  \ }
+
+function! RedrawModeColors(mode) " {{{
+  " Normal mode
+  if a:mode == 'n'
+    hi StatuslineModeSeparator guifg=#565575
+    hi StatuslineModeBody guifg=#c0ca82 guibg=#565575
+
+    hi StatuslineFilenameSeparator guifg=#2a3158
+    hi StatuslineFilenameBody guifg=#95c4ce guibg=#2a3158
+
+    hi StatuslineGitSeparatorLeft guifg=#565575
+    hi StatuslineGitBodyLeft guifg=#d2d4de guibg=#565575
+    hi StatuslineGitSeparatorRight guifg=#2a3158
+    hi StatuslineGitBodyRight guifg=#95c4ce guibg=#2a3158
+
+    hi StatuslineModifiedSeparator guifg=#2a3158
+    hi StatuslineModifiedBody guibg=#2a3158
+
+    hi StatuslineALEStatusSeparatorLeft guifg=#565575
+    hi StatuslineALEStatusBodyLeft guifg=#c6c8d1 guibg=#565575
+    hi StatuslineALEStatusSeparatorRight guifg=#2a3158
+    hi StatuslineALEStatusBodyRight guibg=#2a3158
+
+    hi StatuslineLineColSeparator guifg=#2a3158
+    hi StatuslineLineColBody guifg=#95c4ce guibg=#2a3158
+
+    hi StatuslineFiletypeSeparator guifg=#2a3158
+    hi StatuslineFiletypeBody guibg=#2a3158 guifg=#a093c7
+
+    hi StatuslineReset guibg=#1e1c31 guifg=#1e1c31
+
+  " Insert mode
+  elseif a:mode == 'i'
+    hi StatuslineModeBody guifg=#e98989
+
+  " Replace mode
+  elseif a:mode == 'R'
+    hi StatuslineMode ctermfg=8
+    hi StatuslineFilename ctermfg=3
+    hi StatuslineModeBody ctermbg=8
+
+  " Visual mode
+  elseif a:mode == 'v' || a:mode == 'V' || a:mode == '^V'
+    hi StatuslineModeBody guifg=#e9b189
+
+  " Command mode
+  elseif a:mode == 'c'
+    hi StatuslineMode ctermfg=8
+    hi StatuslineFilename ctermfg=6
+    hi StatuslineModeBody ctermbg=8
+
+  " Terminal mode
+  elseif a:mode == 't'
+    hi StatuslineMode ctermfg=8
+    hi StatuslineFilename ctermfg=1
+    hi StatuslineModeBody ctermbg=8
+  endif
+
+  " Return empty string so as not to display anything in the statusline
+  return ''
+endfunction
+
+function! SetALEStatus() abort
+  let l:count = ale#statusline#Count(bufnr(''))
+  let l:errors = l:count.error + l:count.style_error
+  let l:warnings = l:count.warning + l:count.style_warning
+  if l:count.total == 0
+    hi StatuslineALEStatusBodyRight guibg=#2a3158 guifg=#c0ca82
+    return "  "
+  else
+    hi StatuslineALEStatusBodyRight guibg=#2a3158 guifg=#e98989
+    return '  :' . l:errors . ' ' . '  :' . l:warnings
+  endif
+endfunction
+
+function! SetModifiedSymbol(modified) " {{{
+  if a:modified == 1
+    hi StatuslineModifiedBody guibg=#2a3158 guifg=#e98989
+    return "  "
+  else
+      hi StatuslineModifiedBody guibg=#2a3158 guifg=#d2d4de
+    return " ﱣ "
+  endif
+endfunction
+
+function! SetFiletype(filetype)
+  if a:filetype == ''
+    return '-'
+  else
+    return  WebDevIconsGetFileTypeSymbol() . ' ' . a:filetype
+  endif
+endfunction
+
+function SetPosition() abort
+  let l:numlines = string(line('$'))
+  let l:loffset = strlen(l:numlines) + 2
+  let l:roffset = 3
+  let l:icon = ''
+  let l:line = string(line('.'))
+  let l:col = string(col('.'))
+  let l:ldiff = loffset - strlen(line)
+  let l:rdiff = roffset - strlen(col)
+  if l:ldiff > 0
+    let l:line = l:icon . repeat(" ", ldiff) . l:line
+  endif
+  if l:rdiff > 0
+    let l:col = l:col . repeat(" ", rdiff)
+  endif
+  return l:line . ":" . l:col
+endfunction
+
+set statusline=%{RedrawModeColors(mode())}
+" left side
+" =======================
+
+" mode
+set statusline+=%#StatuslineModeSeparator#
+set statusline+=%#StatuslineModeBody#
+set statusline+=\   "
+set statusline+=\   "
+
+" filename
+set statusline+=%#StatuslineFilenameBody#\ %t
+set statusline+=%#StatuslineModifiedSeparator#\ "
+
+" git branch
+set statusline+=%#StatuslineGitSeparatorLeft#
+set statusline+=%#StatuslineGitBodyLeft#\ "
+set statusline+=%#StatuslineGitBodyRight#\ "
+set statusline+=%#StatuslineGitBodyRight#%{FugitiveHead()}
+set statusline+=%#StatuslineGitSeparatorRight#\ "
+
+" " Modified status
+set statusline+=%#StatuslineModifiedSeparator#
+set statusline+=%#StatuslineModifiedBody#%{SetModifiedSymbol(&modified)}
+set statusline+=%#StatuslineModifiedSeparator#
+
+" right side
+" =======================
+
+" ALE status
+set statusline+=%=
+set statusline+=%#StatuslineALEStatusSeparatorLeft#
+set statusline+=%#StatuslineALEStatusBodyLeft#ALE\ "
+set statusline+=%#StatuslineALEStatusBodyRight#%{SetALEStatus()}       "
+set statusline+=%#StatuslineALEStatusSeparatorRight#\ "
+
+" " Line and Column
+set statusline+=%#StatuslineLineColSeparator#
+set statusline+=%#StatuslineLineColBody#%{SetPosition()} "
+set statusline+=%#StatuslineLineColSeparator#
+
+" " Padding
+set statusline+=\ "
+
+" " Filetype
+set statusline+=%#StatuslineFiletypeSeparator#
+set statusline+=%#StatuslineFiletypeBody#%{SetFiletype(&filetype)}
+set statusline+=%#StatuslineFiletypeSeparator#\ "
+
+set statusline+=%#StatuslineReset#
+'''
+
+[[plugins]]
+repo = "junegunn/fzf"
+build = "./install --all"
+hook_add = '''
+let g:fzf_layout = { 'window': { 'width': 0.7, 'height': 0.5 } }
+'''
+
+[[plugins]]
+repo = "liuchengxu/vista.vim"
+hook_add = '''
+let g:vista_default_executive = "coc"
+let g:vista_echo_cursor_strategy = "floating_win"
+let g:vista_cursor_delay = "200"
+let g:vista#renderer#enable_icon = 1
+let g:vista_update_on_text_changed = 1
+let g:vista_update_on_text_changed_delay = 200
+let g:vista_highlight_whole_line = 1
+let g:vista_sidebar_width = 30
+'''
+
+[[plugins]]
+repo = "kassio/neoterm"
+hook_add = '''
+let g:mapleader = "\<Space>"
+let g:neoterm_autoscroll = 1
+let g:neoterm_default_mod="belowright"
+
+nnoremap <leader>ts :Tnew<CR>
+nnoremap <leader>tv :vertical Tnew<CR>
+nnoremap <leader><CR> :TREPLSendLine<CR>
+vnoremap <leader><CR> V:TREPLSendSelection<CR> :normal`><CR>
+'''
+
+# [[plugins]]
+# repo = 'Shougo/denite.nvim'
+# on_event = "BufRead"
+# hook_add = '''
+# let g:mapleader = "\<Space>"
+# nmap <leader>fb :<C-u>Denite buffer -split=floating<CR>
+# nmap <leader>ff :<C-u>Denite file/rec -split=floating<CR>
+# nmap <leader>fg :<C-u>Denite file/rec/git -split=floating<CR>
+# nmap <leader>fl :<C-u>Denite line -split=floating<CR>
+# nmap <leader>fd :<C-u>Denite directory_rec -split=floating<CR>
+# nmap <leader>fr :<C-u>Denite grep -split=floating<CR>
+# nmap <leader>fe :<C-u>Denite coc-diagnostic -split=floating<CR>
+# nmap <leader>fs :<C-u>Denite coc-symbols -split=floating<CR>
+# call denite#custom#alias('source', 'file/rec/git', 'file/rec')
+# call denite#custom#var('file/rec/git', 'command',
+# 	      \ ['git', 'ls-files', '-co', '--exclude-standard'])
+# autocmd FileType denite call s:denite_my_settings()
+# 	function! s:denite_my_settings() abort
+# 	  nnoremap <silent><buffer><expr> <CR>
+# 	  \ denite#do_map('do_action')
+# 	  nnoremap <silent><buffer><expr> d
+# 	  \ denite#do_map('do_action', 'delete')
+# 	  nnoremap <silent><buffer><expr> q
+# 	  \ denite#do_map('quit')
+# 	  nnoremap <silent><buffer><expr> cd
+# 	  \ denite#do_map('do_action', 'cd')
+# 	  nnoremap <silent><buffer><expr> i
+# 	  \ denite#do_map('open_filter_buffer')
+# 	  nnoremap <silent><buffer><expr> <Space>
+# 	  \ denite#do_map('toggle_select').'j'
+# 	endfunction
+# '''
+# 
+# [[plugins]]
+# repo = "neoclide/coc-denite"
+
+[[plugins]]
+repo = "liuchengxu/vim-clap"
+hook_add = '''
+let g:mapleader = "\<Space>"
+let g:clap_open_action = { 'ctrl-x': 'split', 'ctrl-v': 'vsplit' }
+let g:clap_prompt_format = ' %forerunner_status% %provider_id% ❯❯ '
+let g:clap_current_selection_sign = { 'text': ' ', 'texthl': "ClapCurrentSelectionSign", "linehl": "ClapCurrentSelection" }
+let g:clap_enable_background_shadow = 0
+let g:clap_open_preview = "never"
+
+nmap <leader>fb :<C-u>Clap buffers<CR>
+nmap <leader>ff :<C-u>Clap files ++finder=fd --type f --no-ignore<CR>
+nmap <leader>fd :<C-u>Clap filer<CR>
+nmap <leader>fl :<C-u>Clap blines<CR>
+nmap <leader>ft :<C-u>Clap tags<CR>
+nmap <leader>fr :<C-u>Clap grep<CR>
+nmap <leader>fg :<C-u>Clap git_files<CR>
+
+augroup ClapConfig
+  autocmd!
+  autocmd User ClapOnEnter call s:clap_my_settings()
+    function! s:clap_my_settings()
+      nnoremap <silent><buffer> q :<c-u>call clap#handler#exit()<CR>
+    endfunction
+'''
+
+[[plugins]]
+repo = "Shougo/defx.nvim"
+hook_add = '''
+nnoremap <leader>df :Defx -columns=icons:indent:filename:type -split=vertical -winwidth=25 -direction=topleft<CR>
+autocmd FileType defx call s:defx_my_settings()
+function! s:defx_my_settings() abort
+    " Define mappings
+    nnoremap <silent><buffer><expr> <CR>
+    \ defx#do_action('open')
+    nnoremap <silent><buffer><expr> c
+    \ defx#do_action('copy')
+    nnoremap <silent><buffer><expr> m
+    \ defx#do_action('move')
+    nnoremap <silent><buffer><expr> p
+    \ defx#do_action('paste')
+    nnoremap <silent><buffer><expr> l defx#do_action('open', "vsplit" )
+    nnoremap <silent><buffer><expr> E
+    \ defx#do_action('open')
+    nnoremap <silent><buffer><expr> P
+    \ defx#do_action('open', 'pedit')
+    nnoremap <silent><buffer><expr> o
+    \ defx#do_action('open_or_close_tree')
+    nnoremap <silent><buffer><expr> K
+    \ defx#do_action('new_directory')
+    nnoremap <silent><buffer><expr> N
+    \ defx#do_action('new_file')
+    nnoremap <silent><buffer><expr> M
+    \ defx#do_action('new_multiple_files')
+    nnoremap <silent><buffer><expr> C
+    \ defx#do_action('toggle_columns',
+    \                'mark:filename:type:size:time')
+    nnoremap <silent><buffer><expr> S
+    \ defx#do_action('toggle_sort', 'time')
+    nnoremap <silent><buffer><expr> d
+    \ defx#do_action('remove')
+    nnoremap <silent><buffer><expr> r
+    \ defx#do_action('rename')
+    nnoremap <silent><buffer><expr> yy
+    \ defx#do_action('yank_path')
+    nnoremap <silent><buffer><expr> .
+    \ defx#do_action('toggle_ignored_files')
+    nnoremap <silent><buffer><expr> ;
+    \ defx#do_action('repeat')
+    nnoremap <silent><buffer><expr> h
+    \ defx#do_action('cd', ['..'])
+    nnoremap <silent><buffer><expr> ~
+    \ defx#do_action('cd')
+    nnoremap <silent><buffer><expr> q
+    \ defx#do_action('quit')
+    nnoremap <silent><buffer><expr> +
+    \ defx#do_action('toggle_select') . 'j'
+    nnoremap <silent><buffer><expr> *
+    \ defx#do_action('toggle_select_all')
+    nnoremap <silent><buffer><expr> j
+    \ line('.') == line('$') ? 'gg' : 'j'
+    nnoremap <silent><buffer><expr> k
+    \ line('.') == 1 ? 'G' : 'k'
+    nnoremap <silent><buffer><expr> cd
+    \ defx#do_action('change_vim_cwd')
+endfunction
+'''
+
+[[plugins]]
+repo = "kristijanhusak/defx-icons"
+
+[[plugins]]
+repo = "neoclide/coc.nvim"
+rev = 'release'
+# build = "./install.sh nightly"
+hook_add = '''
+let g:mapleader = "\<Space>"
+inoremap <silent><expr> <C-n>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+inoremap <silent><expr> <c-space> coc#refresh()
+
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" nmap <silent> gp <Plug>(coc-diagnostic-prev)
+" nmap <silent> gn <Plug>(coc-diagnostic-next)
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gt <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>hf :call coc#util#float_hide()<CR>
+
+nnoremap <leader>sd :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if &filetype == 'vim'
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+nmap <leader>rn <Plug>(coc-rename)
+
+augroup mygroup
+  autocmd!
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+command! -nargs=0 Format :call CocAction('format')
+
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+nnoremap <leader>sa :<C-u>CocList diagnostics<cr>
+'''
+
+[[plugins]]
+repo = "Shougo/deol.nvim"
+hook_add = '''
+let g:mapleader = "\<Space>"
+nnoremap <leader>do :Deol -split=floating -winwidth=90 -winheight=30<CR>
+nnoremap <leader>dv :Deol -split=vertical -start-insert=true<CR>
+let g:deol#custom_map = {
+			\ 'edit': 'e',
+			\ 'start_insert': 'i',
+			\ 'start_insert_first': 'I',
+			\ 'start_append': 'a',
+			\ 'start_append_last': 'A',
+			\ 'execute_line': '<CR>',
+			\ 'previous_prompt': '<C-p>',
+			\ 'next_prompt': '<C-n>',
+			\ 'paste_prompt': '<C-y>',
+			\ 'bg': '<C-z>',
+			\ 'quit': 'q',
+			\ }
+'''
+
+# plugins for julia ##
+[[plugins]]
+repo = 'JuliaEditorSupport/julia-vim'
+hook_add = '''
+let g:default_julia_version = '1.0'
+'''
+
+[[plugins]]
+repo = "dense-analysis/ale"
+hook_add = '''
+let g:ale_linters = {
+    \ 'python': ['pyflakes', 'pycodestyle'],
+    \ }
+
+let g:ale_fixers = {
+    \ 'python': ['yapf', 'isort'],
+    \ 'rust': ['rustfmt'],
+    \ }
+
+let g:ale_sign_error = ''
+let g:ale_sign_warning = ''
+let g:ale_statusline_format = [' %d', ' %d', ' OK']
+let g:ale_echo_msg_error_str = ''
+let g:ale_echo_msg_warning_str = ''
+let g:ale_echo_msg_format = '%severity% [%linter%] %s'
+
+let g:ale_fix_on_save = 1
+
+let g:ale_lint_on_save = 1
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_text_changed = 0
+
+let g:ale_disable_lsp = 1
+
+nmap <silent> gp <Plug>(ale_previous_wrap)
+nmap <silent> gn <Plug>(ale_next_wrap)
+'''
+
+[[plugins]]
+repo = 'ryanoasis/vim-devicons'
+
+[[plugins]]
+repo = "tpope/vim-fugitive"
+
+[[plugins]]
+repo = "airblade/vim-gitgutter"
+hook_add = """
+set updatetime=100
+nmap ]g <Plug>(GitGutterNextHunk)
+nmap [g <Plug>(GitGutterPrevHunk)
+"""
+
+[[plugins]]
+repo = "junegunn/vim-easy-align"
+hook_add = '''
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
+'''
