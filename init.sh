@@ -11,3 +11,4 @@ rm ./installer.sh
 pyenv install 3.7.10
 poetry config virtualenvs.in-project true
 sudo usermod -aG uucp $USER
+git clone https://github.com/arduino-libraries/Servo ~/Arduino/libraries/Servo
