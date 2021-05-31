@@ -1,6 +1,6 @@
 sudo pacman -Syyu
 sudo pacman -S yay
-yay -S fd ripgrep starship exa fzf fish neovim pyenv poetry nodejs npm
+yay -S fd ripgrep starship exa fzf fish neovim pyenv poetry nodejs npm cheese
 sudo npm install n -g
 sudo n stable
 yay -Rs nodejs npm
