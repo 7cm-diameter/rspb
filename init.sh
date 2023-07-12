@@ -6,7 +6,7 @@
 # You also download `Hack Nerd-fonts` from https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Hack.
 # Downloaded patches must be in `$HOME/.local/share/fonts`.
 
-sudo snap install neovim --classic
+sudo snap install nvim --classic
 sudo snap install chezmoi --classic
 sudo apt install -y fish fzf build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev nodejs npm portaudio19-dev cmake
 
