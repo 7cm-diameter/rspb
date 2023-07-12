@@ -43,4 +43,4 @@ sudo npm -g install yarn
 chezmoi init https://github.com/7cm-diameter/dotfiles
 chezmoi apply
 
-sudo chsh -s /usr/bin/fish
+chsh
